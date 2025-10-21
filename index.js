@@ -14,7 +14,7 @@ if (!fs.existsSync(FILE_PATH)) fs.mkdirSync(FILE_PATH, { recursive: true });
 
 // 配置
 const UUID = process.env.UUID || '792c9cd6-9ece-4ebc-ff02-86eaf8bf7e73';
-const ARGO_PORT = 8080;
+const ARGO_PORT = 3000;
 const ARGO_LOG = path.join(FILE_PATH, 'argo.log');
 const SINGBOX_CONF = path.join(FILE_PATH, 'config.json');
 
