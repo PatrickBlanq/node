@@ -97,24 +97,7 @@ function pollArgoDomain(retries = 20, intervalMs = 2000) {
         }, intervalMs);
     });
 }
-// 解压 sing-box tar.gz 并返回二进制路径
-function extractSingBoxTAR(tarPath, dest) {
-    execSync(`tar -xzf "${tarPath}" -C "${dest}"`);
-    console.log('解压完成', tarPath);
 
-    // 提取目录名
-    const extractedDir = fs.readdirSync(dest).find(d => d.startsWith('sing-box'));
-    const binPath = path.join(dest, extractedDir, 'sing-box');
-
-    if (!fs.existsSync(binPath)) throw new Error('解压后未找到 sing-box 二进制');
-
-    const finalBin = path.join(dest, 'sing-box'); // 最终路径
-    fs.copyFileSync(binPath, finalBin); // 拷贝到 tmp/sing-box
-    fs.chmodSync(finalBin, 0o755);
-    console.log('sing-box 放置在', finalBin);
-
-    return finalBin;
-}
 
 // 主流程
 (async () => {
@@ -126,7 +109,6 @@ function extractSingBoxTAR(tarPath, dest) {
         await downloadTo(SINGBOX_URL, singboxTar);
 
         const singboxBinPath = extractSingBoxGZ(singboxTar, FILE_PATH);
-        //const singboxBin = singboxBinGZ(singboxTar, FILE_PATH);
 
         writeSingBoxConfig();
         startSingBox(singboxBinPath);
@@ -146,3 +128,4 @@ function extractSingBoxTAR(tarPath, dest) {
         console.error('错误:', err);
     }
 })();
+setInterval(() => { }, 1000);
