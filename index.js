@@ -35,24 +35,18 @@ async function downloadTo(url, outPath) {
 }
 
 // 解压 sing-box tar.gz 并移动到 tmp/sing-box
-function extractSingBox(tarPath, dest) {
+function extractSingBoxGZ(tarPath, dest) {
     execSync(`tar -xzf "${tarPath}" -C "${dest}"`);
     console.log('解压完成', tarPath);
 
+    // 移动 sing-box 到 tmp/sing-box
     const extractedDir = fs.readdirSync(dest).find(d => d.startsWith('sing-box'));
-    const binPath = path.join(dest, extractedDir, 'sing-box');
-
-    if (!fs.existsSync(binPath)) throw new Error('解压后未找到 sing-box 二进制');
-
-    const finalBin = path.join(dest, 'sing-box');
-    fs.copyFileSync(binPath, finalBin);
-    fs.chmodSync(finalBin, 0o755);
-
-    // 清理解压目录
-    fs.rmSync(path.join(dest, extractedDir), { recursive: true, force: true });
-
-    console.log('sing-box 放置在', finalBin);
-    return finalBin;
+    const oldBin = path.join(dest, extractedDir, 'sing-box');
+    const newBin = path.join(dest, 'sing-box');
+    fs.renameSync(oldBin, newBin);
+    fs.chmodSync(newBin, 0o755);
+    console.log('sing-box 移动到', newBin);
+    return newBin;
 }
 
 // 写 sing-box 配置
@@ -103,7 +97,23 @@ function pollArgoDomain(retries = 20, intervalMs = 2000) {
     });
 }
 // 解压 sing-box tar.gz 并返回二进制路径
+function extractSingBoxTAR(tarPath, dest) {
+    execSync(`tar -xzf "${tarPath}" -C "${dest}"`);
+    console.log('解压完成', tarPath);
 
+    // 提取目录名
+    const extractedDir = fs.readdirSync(dest).find(d => d.startsWith('sing-box'));
+    const binPath = path.join(dest, extractedDir, 'sing-box');
+
+    if (!fs.existsSync(binPath)) throw new Error('解压后未找到 sing-box 二进制');
+
+    const finalBin = path.join(dest, 'sing-box'); // 最终路径
+    fs.copyFileSync(binPath, finalBin); // 拷贝到 tmp/sing-box
+    fs.chmodSync(finalBin, 0o755);
+    console.log('sing-box 放置在', finalBin);
+
+    return finalBin;
+}
 
 // 主流程
 (async () => {
@@ -114,7 +124,8 @@ function pollArgoDomain(retries = 20, intervalMs = 2000) {
         await downloadTo(CLOUDFLARED_URL, cfBin);
         await downloadTo(SINGBOX_URL, singboxTar);
 
-        const singboxBin = extractSingBox(singboxTar, FILE_PATH);
+        const singboxBinGZ = extractSingBoxGZ(singboxTar, FILE_PATH);
+		const singboxBin = extractSingBoxTAR(singboxBinGZ, FILE_PATH);
 
         writeSingBoxConfig();
         startSingBox(singboxBin);
