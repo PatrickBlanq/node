@@ -43,10 +43,10 @@ function extractSingBoxGZ(tarPath, dest) {
     const extractedDir = fs.readdirSync(dest).find(d => d.startsWith('sing-box'));
     const oldBin = path.join(dest, extractedDir, 'sing-box');
     const newBin = path.join(dest, 'sing-box');
-    fs.renameSync(oldBin, newBin);
-    fs.chmodSync(newBin, 0o755);
-    console.log('sing-box 移动到', newBin);
-    return newBin;
+    //fs.renameSync(oldBin, newBin);
+    fs.chmodSync(oldBin, 0o755);
+    console.log('sing-box 移动到', oldBin);
+    return oldBin;
 }
 
 // 写 sing-box 配置
@@ -124,11 +124,11 @@ function extractSingBoxTAR(tarPath, dest) {
         await downloadTo(CLOUDFLARED_URL, cfBin);
         await downloadTo(SINGBOX_URL, singboxTar);
 
-        const singboxBinGZ = extractSingBoxGZ(singboxTar, FILE_PATH);
-		const singboxBin = extractSingBoxTAR(singboxBinGZ, FILE_PATH);
+        const singboxBinPath = extractSingBoxGZ(singboxTar, FILE_PATH);
+        //const singboxBin = singboxBinGZ(singboxTar, FILE_PATH);
 
         writeSingBoxConfig();
-        startSingBox(singboxBin);
+        startSingBox(singboxBinPath);
         startCloudflared(cfBin);
 
         console.log('🚀 等待 Argo 输出域名...');
