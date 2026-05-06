@@ -2,7 +2,9 @@
   "name": "light-argo-vless",
   "version": "1.0.0",
   "description": "Lightweight VLESS + Argo Tunnel (Node.js)",
-  "main": "index.js",
+  "main": "seven.cjs",
+  "type": "commonjs",
+
   "scripts": {
     "start": "node index.js"
   },
